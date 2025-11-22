@@ -209,46 +209,58 @@ class PrescribingDataGUI:
 
     # --- Summary ---
     def show_summary(self):
-        if self.df is None:
-            messagebox.showwarning("No data", "Please load a CSV file first.")
-            return
+    if self.df is None:
+        messagebox.showwarning("No data", "Please load a CSV file first.")
+        return
 
-        df_filtered = apply_filters(
-            self.df,
-            {col: self.filter_widgets[col].get() for col in self.filters.keys()}
+    df_filtered = self.apply_filters(self.df)
+    if df_filtered.empty:
+        messagebox.showinfo("No data", "No rows match the selected filters.")
+        return
+
+    # Clear previous output
+    for widget in self.output_frame.winfo_children():
+        widget.destroy()
+
+    # Create scrollable Text widget
+    text_widget = Text(self.output_frame, wrap=NONE)
+    scrollbar_y = Scrollbar(self.output_frame, orient=VERTICAL, command=text_widget.yview)
+    scrollbar_x = Scrollbar(self.output_frame, orient=HORIZONTAL, command=text_widget.xview)
+    text_widget.configure(yscrollcommand=scrollbar_y.set, xscrollcommand=scrollbar_x.set)
+
+    text_widget.pack(fill=BOTH, expand=True, side=LEFT)
+    scrollbar_y.pack(fill=Y, side=RIGHT)
+    scrollbar_x.pack(fill=X, side=BOTTOM)
+
+    # --- Numeric summary reflecting aggregation ---
+    if self.numeric_cols:
+        text_widget.insert(END, "=== Numeric Summary ===\n")
+
+        # Use aggregation dropdown for numeric summary
+        agg_method = self.agg_dropdown.get()
+        group_col = self.x_dropdown.get() if self.x_dropdown.get() else None
+
+        summary = numeric_summary(
+            df_filtered,
+            self.numeric_cols,
+            agg_method=agg_method,
+            group_col=group_col
         )
 
-        if df_filtered.empty:
-            messagebox.showinfo("No data", "No rows match the selected filters.")
-            return
+        # Display the summary table
+        text_widget.insert(END, summary.to_string() + "\n\n")
 
-        for widget in self.output_frame.winfo_children():
-            widget.destroy()
+    # --- Categorical summary (excluding selected fields) ---
+    categorical_cols = [c for c in df_filtered.columns
+                        if c not in self.numeric_cols and c not in self.categorical_summary_exclude]
+    if categorical_cols:
+        text_widget.insert(END, "=== Categorical Summary ===\n")
+        for col in categorical_cols:
+            text_widget.insert(END, f"{col} value counts:\n")
+            counts = df_filtered[col].value_counts().head(20)  # top 20 only
+            text_widget.insert(END, counts.to_string() + "\n\n")
 
-        text_widget = Text(self.output_frame, wrap=NONE)
-        scrollbar_y = Scrollbar(self.output_frame, orient=VERTICAL, command=text_widget.yview)
-        scrollbar_x = Scrollbar(self.output_frame, orient=HORIZONTAL, command=text_widget.xview)
-
-        text_widget.configure(yscrollcommand=scrollbar_y.set, xscrollcommand=scrollbar_x.set)
-        text_widget.pack(fill=BOTH, expand=True, side=LEFT)
-        scrollbar_y.pack(fill=Y, side=RIGHT)
-        scrollbar_x.pack(fill=X, side=BOTTOM)
-
-        # Numeric summary
-        num_sum = numeric_summary(df_filtered, self.numeric_cols)
-        if num_sum is not None:
-            text_widget.insert(END, "=== Numeric Summary ===\n")
-            text_widget.insert(END, num_sum.to_string() + "\n\n")
-
-        # Categorical summary
-        cat_sum = categorical_summary(df_filtered, self.numeric_cols, self.categorical_summary_exclude)
-        if cat_sum:
-            text_widget.insert(END, "=== Categorical Summary ===\n")
-            for col, counts in cat_sum.items():
-                text_widget.insert(END, f"{col} value counts:\n")
-                text_widget.insert(END, counts.to_string() + "\n\n")
-
-        text_widget.config(state=DISABLED)
+    text_widget.config(state=DISABLED)
 
 
 # Run the app

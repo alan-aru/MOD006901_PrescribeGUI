@@ -59,13 +59,36 @@ def aggregate_for_plot(df: pd.DataFrame, x_col: str, y_col: str, method: str):
     return result.sort_values(ascending=False).head(15)
 
 
-def numeric_summary(df: pd.DataFrame, numeric_cols):
+def numeric_summary(df, numeric_cols, agg_method=None, group_col=None):
     """
-    Returns the numeric summary (describe).
+    Returns a numeric summary of the dataframe.
+    
+    If agg_method and group_col are provided, it aggregates numeric columns by the group.
+    
+    Parameters:
+        df (DataFrame): Filtered dataframe
+        numeric_cols (list): List of numeric column names
+        agg_method (str, optional): "Sum", "Average", or "Count"
+        group_col (str, optional): Column to group by if aggregation is needed
+        
+    Returns:
+        DataFrame: Summary table
     """
-    if not numeric_cols:
-        return None
-    return df[numeric_cols].describe().round(2)
+    if agg_method and group_col:
+        grouped = df.groupby(group_col)[numeric_cols]
+        if agg_method == "Sum":
+            summary = grouped.sum()
+        elif agg_method == "Average":
+            summary = grouped.mean()
+        elif agg_method == "Count":
+            summary = grouped.count()
+        else:
+            summary = grouped.sum()  # default to sum
+        return summary.round(2)
+    else:
+        # Normal descriptive stats
+        return df[numeric_cols].describe().round(2)
+
 
 
 def categorical_summary(df: pd.DataFrame, numeric_cols, exclude_cols):
