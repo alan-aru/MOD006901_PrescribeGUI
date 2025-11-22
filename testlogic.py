@@ -54,6 +54,26 @@ def test_numeric_summary():
     assert summary.loc["mean", "A"] == 2.5
 
 
+def test_numeric_summary_with_aggregation():
+    df = sample_df()
+    numeric_cols = detect_numeric_columns(df)
+
+    # Test Sum aggregation by REGION
+    summary_sum = numeric_summary(df, numeric_cols, agg_method="Sum", group_col="REGION")
+    assert summary_sum.loc["X", "A"] == 1 + 2  # X region total for column A
+    assert summary_sum.loc["Y", "B"] == 30 + 40  # Y region total for column B
+
+    # Test Average aggregation by REGION
+    summary_avg = numeric_summary(df, numeric_cols, agg_method="Average", group_col="REGION")
+    assert summary_avg.loc["X", "A"] == (1 + 2) / 2
+    assert summary_avg.loc["Y", "B"] == (30 + 40) / 2
+
+    # Test Count aggregation by REGION
+    summary_count = numeric_summary(df, numeric_cols, agg_method="Count", group_col="REGION")
+    assert summary_count.loc["X", "A"] == 2  # 2 rows in region X
+    assert summary_count.loc["Y", "B"] == 2  # 2 rows in region Y
+
+
 def test_categorical_summary():
     df = sample_df()
     numeric = detect_numeric_columns(df)
