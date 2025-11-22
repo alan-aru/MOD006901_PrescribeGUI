@@ -258,8 +258,12 @@ class PrescribingDataGUI:
             c for c in df_filtered.columns
             if c not in self.numeric_cols and c not in self.categorical_summary_exclude
         ]
+
         if categorical_cols:
             text_widget.insert(END, "=== Categorical Summary ===\n")
+            # This uses the imported function
+            cat_summary = categorical_summary(df_filtered, self.numeric_cols, exclude_cols=self.categorical_summary_exclude)
+
             for col in categorical_cols:
                 text_widget.insert(END, f"{col} value counts:\n")
                 counts = df_filtered[col].value_counts().head(20)  # top 20 only
