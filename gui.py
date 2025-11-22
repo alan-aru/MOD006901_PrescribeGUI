@@ -251,8 +251,10 @@ class PrescribingDataGUI:
         text_widget.insert(END, summary.to_string() + "\n\n")
 
     # --- Categorical summary (excluding selected fields) ---
-    categorical_cols = [c for c in df_filtered.columns
-                        if c not in self.numeric_cols and c not in self.categorical_summary_exclude]
+    categorical_cols = [
+        c for c in df_filtered.columns
+        if c not in self.numeric_cols and c not in self.categorical_summary_exclude
+    ]
     if categorical_cols:
         text_widget.insert(END, "=== Categorical Summary ===\n")
         for col in categorical_cols:
