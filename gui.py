@@ -70,7 +70,7 @@ class PrescribingDataGUI:
         self.x_dropdown.grid(row=0, column=1, padx=5)
 
         Label(self.control_frame, text="Y-axis (numeric):").grid(row=0, column=2, padx=5)
-        self.y_dropdown = ttk.Combobox(self.control_frame, state="readonly", width=25)
+        self.y_dropdown = ttk.Combobox(self.control_frame, state="readonly", width=50)
         self.y_dropdown.grid(row=0, column=3, padx=5)
 
         Label(self.control_frame, text="Aggregation:").grid(row=0, column=4, padx=5)
