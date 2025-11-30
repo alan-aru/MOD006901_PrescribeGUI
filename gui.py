@@ -7,7 +7,7 @@ from tkinter import *
 from tkinter import ttk, filedialog, messagebox
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-# Import logic functions
+# Import logic functions from logic.py
 from logic import (
     load_csv_file,
     detect_numeric_columns,
@@ -21,21 +21,23 @@ from logic import (
 
 class PrescribingDataGUI:
     def __init__(self, main):
+        # --- Creates Main Window for GUI---
         self.main = main
         main.title("NHS Prescribing Data Explorer")
         main.geometry("1400x800")
 
-        # --- File Upload Section ---
+        # --- File Upload Section, shows file upload status and calls load_csv when button is clicked ---
         self.file_label = Label(main, text="No file loaded", fg="gray")
         self.file_label.pack(pady=5)
 
         self.load_button = Button(main, text="Load CSV", command=self.load_csv)
         self.load_button.pack(pady=5)
 
-        # --- Filter Frame ---
+        # --- Filter Frame, creates box to hold all dropdown filters ---
         self.filter_frame = LabelFrame(main, text="Optional Filters", padx=5, pady=5)
         self.filter_frame.pack(fill=X, padx=10, pady=5)
 
+        # --- Creates dictionary to hold all filterable columns ---
         self.filters = {
             "REGIONAL_OFFICE_NAME": None,
             "PCO_NAME": None,
@@ -48,7 +50,7 @@ class PrescribingDataGUI:
 
         self.filter_widgets = {}
 
-        # 2-row layout
+        # Creates 2-row layout for filter list, each filter having a label and set width
         for idx, col in enumerate(self.filters.keys()):
             row = 0 if idx < 4 else 1
             col_pos = idx if idx < 4 else idx - 4
@@ -61,7 +63,7 @@ class PrescribingDataGUI:
             cb.grid(row=row*2+1, column=col_pos*2, columnspan=2, padx=5, pady=5, sticky=W)
             self.filter_widgets[col] = cb
 
-        # --- Plot Controls ---
+        # --- Plot Controls, adds widget for each action ---
         self.control_frame = Frame(main)
         self.control_frame.pack(fill=X, padx=10, pady=5)
 
