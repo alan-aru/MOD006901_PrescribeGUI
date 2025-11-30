@@ -74,7 +74,7 @@ class PrescribingDataGUI:
         self.y_dropdown.grid(row=0, column=3, padx=5)
 
         Label(self.control_frame, text="Aggregation:").grid(row=0, column=4, padx=5)
-        self.agg_dropdown = ttk.Combobox(self.control_frame, state="readonly", width=12)
+        self.agg_dropdown = ttk.Combobox(self.control_frame, state="readonly", width=20)
         self.agg_dropdown['values'] = ["Sum", "Average", "Count"]
         self.agg_dropdown.set("Sum")
         self.agg_dropdown.grid(row=0, column=5, padx=5)
